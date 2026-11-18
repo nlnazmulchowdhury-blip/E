@@ -1,0 +1,68 @@
+{
+  "Common": {
+    "addToCart": "কার্টে যোগ করুন",
+    "addedToCart": "কার্টে যোগ হয়েছে",
+    "buyNow": "এখনই কিনুন",
+    "quantity": "পরিমাণ",
+    "savePercent": "সাশ্রয় {percent}%",
+    "outOfStock": "স্টক নেই"
+  },
+  "Header": {
+    "login": "লগইন",
+    "myOrders": "আমার অর্ডার",
+    "wishlist": "উইশলিস্ট",
+    "adminPanel": "অ্যাডমিন প্যানেল",
+    "sellerPanel": "সেলার প্যানেল",
+    "logout": "লগআউট",
+    "searchPlaceholder": "প্রোডাক্ট খুঁজুন...",
+    "search": "সার্চ",
+    "allCategories": "সব ক্যাটাগরি",
+    "cart": "কার্ট",
+    "notifications": "নোটিফিকেশন"
+  },
+  "Footer": {
+    "tagline": "বাংলাদেশের বিশ্বস্ত অনলাইন শপিং প্ল্যাটফর্ম। হাজারো সেলারের হাজারো প্রোডাক্ট এক জায়গায়।",
+    "quickLinks": "কুইক লিংক",
+    "allCategories": "সব ক্যাটাগরি",
+    "productSearch": "প্রোডাক্ট সার্চ",
+    "cart": "কার্ট",
+    "wishlist": "উইশলিস্ট",
+    "orderTracking": "অর্ডার ট্র্যাকিং",
+    "becomeSeller": "সেলার হোন",
+    "becomeAdmin": "অ্যাডমিন রিকোয়েস্ট",
+    "customerService": "কাস্টমার সার্ভিস",
+    "helpCenter": "হেল্প সেন্টার",
+    "returnPolicy": "রিটার্ন ও রিফান্ড পলিসি",
+    "shippingPolicy": "শিপিং পলিসি",
+    "privacyPolicy": "প্রাইভেসি পলিসি",
+    "terms": "টার্মস অ্যান্ড কন্ডিশন",
+    "contact": "যোগাযোগ",
+    "hotline": "হটলাইন: 09612-000000",
+    "email": "ইমেইল: support@shopdesh.com",
+    "address": "ঠিকানা: ঢাকা, বাংলাদেশ",
+    "paymentMethods": "পেমেন্ট: bKash • Nagad • SSLCommerz • ক্যাশ অন ডেলিভারি",
+    "copyright": "সর্বস্বত্ব সংরক্ষিত"
+  },
+  "HeroSlider": {
+    "slide1Headline": "আপনার পছন্দের সবকিছু,<br></br><hl>এক ক্লিকেই ঘরে</hl>",
+    "slide1Sub": "হাজারো ভেরিফাইড সেলারের হাজারো প্রোডাক্ট — ক্যাশ অন ডেলিভারি, দ্রুত ডেলিভারি আর সহজ রিটার্ন।",
+    "startShopping": "শপিং শুরু করুন",
+    "allProducts": "সব প্রোডাক্ট",
+    "slide2Headline": "<hl>WELCOME10</hl><br></br> কুপন ব্যবহার করুন, বাঁচান আরও বেশি",
+    "slide2Sub": "সর্বনিম্ন ১,০০০৳ অর্ডারে ১০% ছাড় — চেকআউটে WELCOME10 কুপন দিন।",
+    "shopNow": "এখনই শপিং করুন",
+    "slide3Headline": "দ্রুত ডেলিভারি,<br></br><hl>নিরাপদ পেমেন্ট</hl>",
+    "slide3Sub": "ঢাকায় এক্সপ্রেস ডেলিভারি ১২০৳ থেকে • bKash, Nagad, SSLCommerz • ক্যাশ অন ডেলিভারি • ৭ দিনের রিটার্ন",
+    "orderNow": "অর্ডার করুন",
+    "slideLabel": "স্লাইড {n}"
+  },
+  "Home": {
+    "categories": "ক্যাটাগরি",
+    "seeAll": "সব দেখুন",
+    "productsCount": "{count} প্রোডাক্ট",
+    "flashSale": "ফ্ল্যাশ সেল",
+    "limitedTime": "সীমিত সময়",
+    "newArrivals": "নতুন এসেছে",
+    "bestRated": "সেরা রেটেড প্রোডাক্ট"
+  }
+}

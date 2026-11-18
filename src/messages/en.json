@@ -1,0 +1,68 @@
+{
+  "Common": {
+    "addToCart": "Add to Cart",
+    "addedToCart": "Added to cart",
+    "buyNow": "Buy Now",
+    "quantity": "Quantity",
+    "savePercent": "Save {percent}%",
+    "outOfStock": "Out of stock"
+  },
+  "Header": {
+    "login": "Login",
+    "myOrders": "My Orders",
+    "wishlist": "Wishlist",
+    "adminPanel": "Admin Panel",
+    "sellerPanel": "Seller Panel",
+    "logout": "Logout",
+    "searchPlaceholder": "Search products...",
+    "search": "Search",
+    "allCategories": "All Categories",
+    "cart": "Cart",
+    "notifications": "Notifications"
+  },
+  "Footer": {
+    "tagline": "Bangladesh's trusted online shopping platform. Thousands of products from thousands of sellers in one place.",
+    "quickLinks": "Quick Links",
+    "allCategories": "All Categories",
+    "productSearch": "Product Search",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "orderTracking": "Order Tracking",
+    "becomeSeller": "Become a Seller",
+    "becomeAdmin": "Request Admin Role",
+    "customerService": "Customer Service",
+    "helpCenter": "Help Center",
+    "returnPolicy": "Return & Refund Policy",
+    "shippingPolicy": "Shipping Policy",
+    "privacyPolicy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "contact": "Contact",
+    "hotline": "Hotline: 09612-000000",
+    "email": "Email: support@shopdesh.com",
+    "address": "Address: Dhaka, Bangladesh",
+    "paymentMethods": "Payment: bKash • Nagad • SSLCommerz • Cash on Delivery",
+    "copyright": "All rights reserved"
+  },
+  "HeroSlider": {
+    "slide1Headline": "Everything you love,<br></br><hl>delivered in one click</hl>",
+    "slide1Sub": "Thousands of products from verified sellers — cash on delivery, fast delivery, and easy returns.",
+    "startShopping": "Start Shopping",
+    "allProducts": "All Products",
+    "slide2Headline": "<hl>WELCOME10</hl><br></br> Use the coupon and save even more",
+    "slide2Sub": "Get 10% off on orders over ৳1,000 — apply coupon WELCOME10 at checkout.",
+    "shopNow": "Shop Now",
+    "slide3Headline": "Fast delivery,<br></br><hl>secure payment</hl>",
+    "slide3Sub": "Express delivery in Dhaka from ৳120 • bKash, Nagad, SSLCommerz • Cash on delivery • 7-day returns",
+    "orderNow": "Order Now",
+    "slideLabel": "Slide {n}"
+  },
+  "Home": {
+    "categories": "Categories",
+    "seeAll": "See All",
+    "productsCount": "{count} products",
+    "flashSale": "Flash Sale",
+    "limitedTime": "Limited Time",
+    "newArrivals": "New Arrivals",
+    "bestRated": "Best Rated Products"
+  }
+}

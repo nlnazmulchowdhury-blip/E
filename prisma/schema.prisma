@@ -1,0 +1,556 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  SELLER
+  ADMIN
+  STAFF
+}
+
+enum AdminRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum SellerStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ProductStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  INACTIVE
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  PACKED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  COD
+  BKASH
+  NAGAD
+  SSLCOMMERZ
+}
+
+// ===== users, addresses =====
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  password      String
+  phone         String?
+  role          Role           @default(CUSTOMER)
+  status        String         @default("ACTIVE") // ACTIVE | SUSPENDED
+  permissions   Json?          // STAFF-এর পারমিশন কী-তালিকা; ADMIN = সব
+  avatarUrl     String?
+  addresses     Address[]
+  reviews       Review[]
+  wishlist      WishlistItem[]
+  cartItems     CartItem[]
+  orders        Order[]
+  notifications Notification[]
+  transactions  Transaction[]
+  returnRequests ReturnRequest[]
+  auditLogs     AuditLog[]
+  statusChanges OrderStatusHistory[] @relation("StatusChanges")
+  sellerProfile SellerProfile?
+  adminRequests AdminRequest[] @relation("AdminRequestRequester")
+  reviewedAdminRequests AdminRequest[] @relation("AdminRequestReviewer")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+// ===== অ্যাডমিন রোল রিকোয়েস্ট =====
+
+model AdminRequest {
+  id           String              @id @default(cuid())
+  userId       String              @unique
+  user         User                @relation("AdminRequestRequester", fields: [userId], references: [id], onDelete: Cascade)
+  reason       String
+  status       AdminRequestStatus  @default(PENDING)
+  createdAt    DateTime            @default(now())
+  reviewedAt   DateTime?
+  reviewedById String?
+  reviewedBy   User?               @relation("AdminRequestReviewer", fields: [reviewedById], references: [id])
+
+  @@index([status])
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName    String
+  phone       String
+  division    String
+  district    String
+  thana       String
+  addressLine String
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ===== sellers, shops =====
+
+model SellerProfile {
+  id              String         @id @default(cuid())
+  userId          String         @unique
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shop            Shop?
+  status          SellerStatus   @default(PENDING)
+  verifiedAt      DateTime?
+  // অ্যাডমিন আবেদন বাতিল করলে কারণ — ইউজার /become-seller-এ দেখে
+  rejectionReason String?
+  commissionRate  Decimal        @default(5) @db.Decimal(5, 2)
+  balance         Decimal        @default(0) @db.Decimal(12, 2)
+  bankName        String?
+  bankAccountName String?
+  bankAccountNo   String?
+  bkashNumber     String?
+  products        Product[]
+  orderItems      OrderItem[]
+  orders          Order[]
+  withdrawals     Withdrawal[]
+  commissions     Commission[]
+  transactions    Transaction[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  // Soft delete: অর্ডার/আর্থিক রেকর্ড অক্ষত রাখতে সেলার হার্ড-ডিলিট হয় না
+  deletedAt       DateTime?
+}
+
+model Shop {
+  id              String        @id @default(cuid())
+  sellerProfileId String        @unique
+  sellerProfile   SellerProfile @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
+  name            String        @unique
+  slug            String        @unique
+  logoUrl         String?
+  bannerUrl       String?
+  description     String?
+  address         String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+// ===== categories, products, variants, inventory =====
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
+  description String?
+  imageUrl    String?
+  parentId    String?
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryTree")
+  products    Product[]
+  sortOrder   Int        @default(0) // মেনু/হোমপেজে ক্যাটাগরির ক্রম
+  createdAt   DateTime   @default(now())
+}
+
+model Product {
+  id              String           @id @default(cuid())
+  title           String
+  slug            String           @unique
+  description     String
+  sku             String?
+  price           Decimal          @db.Decimal(12, 2)
+  compareAtPrice  Decimal?         @db.Decimal(12, 2)
+  costPrice       Decimal?         @db.Decimal(12, 2)
+  status          ProductStatus    @default(PENDING)
+  isFlashSale     Boolean          @default(false)
+  flashSalePrice  Decimal?         @db.Decimal(12, 2)
+  flashSaleEndsAt DateTime?
+  // Soft delete: পুরোনো অর্ডারের রেফারেন্স অক্ষত রাখতে পণ্য হার্ড-ডিলিট করা হয় না
+  deletedAt       DateTime?
+  categoryId      String
+  category        Category         @relation(fields: [categoryId], references: [id])
+  sellerId        String?
+  seller          SellerProfile?   @relation(fields: [sellerId], references: [id])
+  inventory       Inventory[]
+  variants        ProductVariant[]
+  images          ProductImage[]
+  reviews         Review[]
+  orderItems      OrderItem[]
+  wishlistedBy    WishlistItem[]
+  cartItems       CartItem[]
+  ratingAvg       Float            @default(0)
+  ratingCount     Int              @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([sellerId])
+}
+
+model ProductVariant {
+  id        String     @id @default(cuid())
+  productId String
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String
+  sku       String?    @unique
+  price     Decimal?   @db.Decimal(12, 2)
+  isActive  Boolean    @default(true)
+  inventory Inventory[]
+  cartItems CartItem[]
+  createdAt DateTime   @default(now())
+
+  @@index([productId])
+}
+
+// প্রতি পণ্যের জন্য একটি বেস রো (variantId = null); ভ্যারিয়েন্ট থাকলে প্রতি ভ্যারিয়েন্টে একটি রো
+model Inventory {
+  id            String          @id @default(cuid())
+  productId     String
+  product       Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId     String?
+  variant       ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  stock         Int             @default(0)
+  reservedStock Int             @default(0)
+  updatedAt     DateTime        @updatedAt
+
+  @@unique([productId, variantId])
+  @@index([variantId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  url       String
+  alt       String?
+  position  Int     @default(0)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+// ===== reviews, wishlist, carts =====
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([productId])
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([productId])
+}
+
+model CartItem {
+  id        String          @id @default(cuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantity  Int             @default(1)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@unique([userId, productId, variantId])
+  @@index([productId])
+}
+
+// ===== orders, order_items, payments, transactions =====
+
+// Order = Parent (কাস্টমার-মুখী: মোট, পেমেন্ট, কুপন, ঠিকানা) + Sub-orders (সেলার অনুযায়ী:
+// নিজস্ব আইটেম, স্ট্যাটাস, শিপমেন্ট, কমিশন)। Sub-orders প্যারেন্টের child।
+model Order {
+  id              String                @id @default(cuid())
+  orderNumber     String                @unique
+  parentId        String?
+  parent          Order?                @relation("OrderTree", fields: [parentId], references: [id], onDelete: Cascade)
+  subOrders       Order[]               @relation("OrderTree")
+  sellerId        String?
+  seller          SellerProfile?        @relation(fields: [sellerId], references: [id])
+  userId          String
+  user            User                  @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  payment         Payment?
+  shipment        Shipment?
+  transactions    Transaction[]
+  commissions     Commission[]
+  returnRequests  ReturnRequest[]
+  statusHistory   OrderStatusHistory[]
+  subtotal        Decimal               @db.Decimal(12, 2)
+  shippingCharge  Decimal               @default(0) @db.Decimal(12, 2) // শুধু প্যারেন্টে
+  discount        Decimal               @default(0) @db.Decimal(12, 2) // প্যারেন্টে মোট, সাব-এ ভাগ
+  total           Decimal?              @db.Decimal(12, 2) // শুধু প্যারেন্টে
+  deliveryMethod  String                @default("STANDARD") // STANDARD | EXPRESS
+  status          OrderStatus           @default(PENDING)
+  paymentMethod   PaymentMethod?        // শুধু প্যারেন্টে
+  paymentStatus   PaymentStatus         @default(PENDING) // শুধু প্যারেন্টে
+  couponCode      String?               // শুধু প্যারেন্টে
+  shippingName    String?               // শুধু প্যারেন্টে
+  shippingPhone   String?               // শুধু প্যারেন্টে
+  shippingAddress String?               // শুধু প্যারেন্টে
+  note            String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@index([userId])
+  @@index([parentId])
+  @@index([sellerId])
+  @@index([status])
+}
+
+// প্রতিটি স্ট্যাটাস পরিবর্তনের হিস্ট্রি — কে, কখন, কী থেকে কীতে
+model OrderStatusHistory {
+  id             String   @id @default(cuid())
+  orderId        String
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus     String?
+  toStatus       String
+  changedByUserId String?
+  changedBy      User?    @relation("StatusChanges", fields: [changedByUserId], references: [id], onDelete: SetNull)
+  changedByRole  String   // ADMIN | SELLER | CUSTOMER | SYSTEM
+  note           String?
+  createdAt      DateTime @default(now())
+
+  @@index([orderId])
+}
+
+model OrderItem {
+  id          String         @id @default(cuid())
+  orderId     String
+  order       Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product        @relation(fields: [productId], references: [id])
+  // Snapshot — প্রোডাক্ট ডিলিট/এডিট হলেও অর্ডারের তথ্য অক্ষত থাকে
+  title       String
+  price       Decimal        @db.Decimal(12, 2)
+  quantity    Int
+  variantId   String?
+  variantName String?
+  variantSku  String?
+  sellerId    String?
+  seller      SellerProfile? @relation(fields: [sellerId], references: [id])
+  commission  Commission?
+  returns     ReturnRequest?
+
+  @@index([orderId])
+  @@index([sellerId])
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String        @unique
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  amount          Decimal       @db.Decimal(12, 2)
+  // Gateway transaction id — unique যাতে একই callback দুবার এলে ডাবল পেমেন্ট না হয় (idempotency)
+  transactionId   String?       @unique
+  gatewayResponse Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+// আর্থিক লেনদেন লেজার (পেমেন্ট, রিফান্ড, কমিশন, উইথড্র)
+model Transaction {
+  id          String         @id @default(cuid())
+  reference   String         @unique
+  type        String         @default("PAYMENT") // PAYMENT | REFUND | COMMISSION | WITHDRAWAL
+  amount      Decimal        @db.Decimal(12, 2)
+  method      String?
+  status      String         @default("PENDING")
+  description String?
+  orderId     String?
+  order       Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  userId      String?
+  user        User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  sellerId    String?
+  seller      SellerProfile? @relation(fields: [sellerId], references: [id], onDelete: SetNull)
+  createdAt   DateTime       @default(now())
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([sellerId])
+}
+
+// ===== commissions, shipments, returns =====
+
+model Commission {
+  id          String         @id @default(cuid())
+  orderId     String
+  order       Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderItemId String         @unique
+  orderItem   OrderItem      @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  sellerId    String
+  seller      SellerProfile  @relation(fields: [sellerId], references: [id])
+  rate        Decimal        @db.Decimal(5, 2)
+  amount      Decimal        @db.Decimal(12, 2)
+  status      String         @default("PENDING") // PENDING | PAID
+  paidAt      DateTime?
+  createdAt   DateTime       @default(now())
+
+  @@index([orderId])
+  @@index([sellerId])
+}
+
+model Shipment {
+  id           String    @id @default(cuid())
+  orderId      String    @unique
+  order        Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  partner      String?   // INHOUSE | PATHOA | STEADFAST | REDX
+  trackingCode String?
+  parcelId     String?
+  status       String    @default("PENDING") // PENDING | PICKED_UP | IN_TRANSIT | DELIVERED | RETURNED
+  shippedAt    DateTime?
+  deliveredAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([status])
+}
+
+model ReturnRequest {
+  id           String    @id @default(cuid())
+  orderId      String
+  order        Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderItemId  String    @unique
+  orderItem    OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  reason       String
+  details      String?
+  status       String    @default("REQUESTED") // REQUESTED | APPROVED | REJECTED | REFUNDED
+  refundAmount Decimal?  @db.Decimal(12, 2)
+  adminNote    String?
+  processedAt  DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ===== coupons, withdrawals, notifications, audit logs =====
+
+model Coupon {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  type           String    @default("PERCENT") // PERCENT | FIXED
+  value          Decimal   @db.Decimal(12, 2)
+  minOrderAmount Decimal?  @db.Decimal(12, 2)
+  maxUses        Int?
+  usedCount      Int       @default(0)
+  startsAt       DateTime?
+  endsAt         DateTime?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+}
+
+model Withdrawal {
+  id          String         @id @default(cuid())
+  sellerId    String
+  seller      SellerProfile  @relation(fields: [sellerId], references: [id])
+  amount      Decimal        @db.Decimal(12, 2)
+  method      String
+  status      String         @default("PENDING") // PENDING | APPROVED | PAID | REJECTED
+  requestedAt DateTime       @default(now())
+  processedAt DateTime?
+
+  @@index([sellerId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// অ্যাডমিন কার্যক্রমের হিসাব
+model AuditLog {
+  id       String   @id @default(cuid())
+  adminId  String
+  admin    User     @relation(fields: [adminId], references: [id])
+  action   String   // CREATE | UPDATE | DELETE | APPROVE | REJECT | STATUS_CHANGE
+  entity   String   // CATEGORY | PRODUCT | ORDER | SELLER | COUPON ...
+  entityId String?
+  details  Json?
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([entity])
+}
+
+// ===== website banners, site settings =====
+
+model Banner {
+  id        String   @id @default(cuid())
+  title     String?
+  subtitle  String?
+  imageUrl  String
+  linkUrl   String?
+  position  String   @default("HERO") // HERO | STRIP | PROMO
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([position])
+  @@index([isActive])
+}
+
+// key-value সেটিংস — হোমপেজ সেকশন টগল, ডিফল্ট কমিশন, সাইটের তথ্য ইত্যাদি
+model SiteSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
