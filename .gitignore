@@ -34,10 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
-# local scratch + user uploads
+# local scratch
 /tmp/
 *.log
-/public/uploads/
 
 # vercel
 .vercel

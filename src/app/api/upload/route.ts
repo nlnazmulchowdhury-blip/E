@@ -1,7 +1,4 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
-import crypto from "node:crypto";
 import { auth } from "@/auth";
 
 const ALLOWED_TYPES = new Set([
@@ -11,8 +8,16 @@ const ALLOWED_TYPES = new Set([
   "image/gif",
 ]);
 const MAX_SIZE = 5 * 1024 * 1024;
+const IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload";
+const UPLOAD_FAILED = "ছবি আপলোড ব্যর্থ হয়েছে, আবার চেষ্টা করুন";
 
-// লোকাল ছবি আপলোড — শুধু অ্যাডমিন ও সেলার; ফাইল public/uploads-এ সেভ হয়
+type ImgbbResponse = {
+  success?: boolean;
+  data?: { url?: string };
+  error?: { message?: string; code?: number };
+};
+
+// শুধু অ্যাডমিন ও সেলার; ছবি imgbb-তে যায়, API কী সার্ভারেই থাকে
 export async function POST(req: Request) {
   const session = await auth();
   const role = session?.user?.role;
@@ -38,11 +43,34 @@ export async function POST(req: Request) {
     );
   }
 
-  const ext = file.type === "image/jpeg" ? "jpg" : file.type.split("/")[1];
-  const name = `${Date.now().toString(36)}-${crypto.randomBytes(6).toString("hex")}.${ext}`;
-  const dir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
+  const apiKey = process.env.IMGBB_API_KEY;
+  if (!apiKey) {
+    console.error("[upload] IMGBB_API_KEY সেট করা নেই");
+    return NextResponse.json(
+      { error: "ছবি আপলোড সার্ভিস কনফিগার করা নেই" },
+      { status: 500 }
+    );
+  }
 
-  return NextResponse.json({ url: `/uploads/${name}` });
+  const body = new FormData();
+  body.append("key", apiKey);
+  body.append("image", file);
+
+  try {
+    const res = await fetch(IMGBB_UPLOAD_URL, {
+      method: "POST",
+      body,
+      signal: AbortSignal.timeout(30_000),
+    });
+    const data = (await res.json()) as ImgbbResponse;
+    const url = data.data?.url;
+    if (!res.ok || !data.success || !url) {
+      console.error("[upload] imgbb ব্যর্থ:", res.status, data.error?.code, data.error?.message);
+      return NextResponse.json({ error: UPLOAD_FAILED }, { status: 502 });
+    }
+    return NextResponse.json({ url });
+  } catch (e) {
+    console.error("[upload] imgbb সংযোগ ব্যর্থ:", e);
+    return NextResponse.json({ error: UPLOAD_FAILED }, { status: 502 });
+  }
 }
