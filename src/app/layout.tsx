@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     "ShopDesh — বাংলাদেশের সেরা অনলাইন শপিং প্ল্যাটফর্ম। ইলেকট্রনিক্স, ফ্যাশন, হোম অ্যান্ড লিভিং সহ হাজারো প্রোডাক্ট।",
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
 
   return (
