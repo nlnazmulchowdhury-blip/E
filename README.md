@@ -29,6 +29,20 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Deploy on Cloudflare Workers
+
+This app is built for Cloudflare with [OpenNext](https://opennext.js.org/cloudflare) — see `wrangler.jsonc` and `open-next.config.ts`.
+
+- Build: `npx opennextjs-cloudflare build` (output goes to `.open-next/`)
+- Deploy: `npx wrangler deploy`, or `npm run deploy` (build + deploy)
+- Preview locally: `npm run preview` (runs the Worker in Wrangler)
+
+Prisma talks to Postgres over TCP through `@prisma/adapter-pg`, so `DATABASE_URL` must be reachable from Cloudflare's network (Neon, Supabase, Prisma Postgres, or a Cloudflare Hyperdrive connection string). Set `DATABASE_URL`, `AUTH_SECRET`, `AUTH_TRUST_HOST=true` and optionally `IMGBB_API_KEY` as Worker variables/secrets.
+
+Run `npx prisma migrate deploy` (or `npx prisma db push`) against that database before the first deploy. For local Worker previews, put the values in `.dev.vars`.
+
+> Windows note: the OpenNext bundle step creates symlinks, which needs Developer Mode enabled (Settings → System → For developers).
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
