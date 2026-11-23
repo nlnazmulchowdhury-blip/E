@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "shopdesh",
+  "name": "temobay",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-11-23",
   // Next.js server code + node-postgres (Prisma adapter) need Node APIs.
@@ -11,5 +11,10 @@
   },
   "observability": {
     "enabled": true
+  },
+  // NextAuth নিজেই host যাচাই করে; Cloudflare-এর ডোমেইন থেকে আসা রিকোয়েস্ট
+  // বিশ্বাসযোগ্য ঘোষণা না করলে UntrustedHost এরর হয়।
+  "vars": {
+    "AUTH_TRUST_HOST": "true"
   }
 }
