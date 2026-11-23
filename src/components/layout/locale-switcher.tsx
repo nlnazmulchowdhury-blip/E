@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import { setLocaleAction } from "@/lib/actions/locale";
 import { cn } from "@/lib/utils";
 
 const options = [
@@ -13,9 +14,9 @@ export function LocaleSwitcher() {
   const locale = useLocale();
   const router = useRouter();
 
-  function switchTo(next: string) {
+  async function switchTo(next: string) {
     if (next === locale) return;
-    document.cookie = `locale=${next}; path=/; max-age=31536000; samesite=lax`;
+    await setLocaleAction(next);
     router.refresh();
   }
 

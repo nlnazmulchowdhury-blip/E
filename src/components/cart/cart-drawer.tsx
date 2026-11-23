@@ -36,16 +36,18 @@ export function CartTrigger({ count, label }: { count: number; label: string }) 
 export function CartDrawer({ items }: { items: CartDrawerItem[] }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  // নেভিগেশনে ড্রয়ার বন্ধ — effect ছাড়া render-time sync (React-এর প্রস্তাবিত প্যাটার্ন)
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (lastPathname !== pathname) {
+    setLastPathname(pathname);
+    setOpen(false);
+  }
 
   useEffect(() => {
     const openCart = () => setOpen(true);
     window.addEventListener(OPEN_CART_EVENT, openCart);
     return () => window.removeEventListener(OPEN_CART_EVENT, openCart);
   }, []);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { MapPin, Plus } from "lucide-react";
 import { placeOrder, type CheckoutState } from "@/lib/actions/checkout";
 import { addAddressAction, type AddressState } from "@/lib/actions/address";
@@ -47,9 +47,12 @@ export function CheckoutForm({ addresses }: { addresses: Address[] }) {
     addresses[0]?.id ||
     "";
 
-  useEffect(() => {
+  // ঠিকানা সেভ সফল হলে ফর্ম বন্ধ — effect ছাড়া render-time sync
+  const [lastAddressMessage, setLastAddressMessage] = useState(addrState.message);
+  if (addrState.message !== lastAddressMessage) {
+    setLastAddressMessage(addrState.message);
     if (addrState.message === "ঠিকানা যোগ হয়েছে") setShowAddressForm(false);
-  }, [addrState.message, addresses.length]);
+  }
 
   return (
     <div className="space-y-6">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, LayoutGrid, Search, ShoppingCart, User, X } from "lucide-react";
@@ -19,10 +19,6 @@ export function MobileNavBar({
 }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
 
   const linkClass = (active: boolean) =>
     cn(
@@ -51,6 +47,7 @@ export function MobileNavBar({
                 <Link
                   key={c.id}
                   href={`/categories/${c.slug}`}
+                  onClick={() => setMenuOpen(false)}
                   className="rounded-lg px-3 py-2 text-sm hover:bg-muted"
                 >
                   {c.name}

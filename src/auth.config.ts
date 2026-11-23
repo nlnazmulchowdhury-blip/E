@@ -3,6 +3,19 @@ import { NextResponse } from "next/server";
 
 export const authConfig = {
   session: { strategy: "jwt" },
+  // অ্যাপ-নির্দিষ্ট কুকি নাম — localhost-এর অন্য NextAuth অ্যাপের
+  // authjs.session-token কুকির সাথে সংঘর্ষ (JWTSessionError) এড়াতে
+  cookies: {
+    sessionToken: {
+      name: "shopdesh.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
   pages: {
     signIn: "/login",
   },
