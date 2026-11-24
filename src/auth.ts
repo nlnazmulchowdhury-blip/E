@@ -1,8 +1,8 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { verifyPassword } from "@/lib/password";
 import { authConfig } from "@/auth.config";
 
 const credentialsSchema = z.object({
@@ -28,7 +28,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (user.status === "SUSPENDED") return null;
 
-        const valid = await bcrypt.compare(password, user.password);
+        const valid = await verifyPassword(password, user.password);
         if (!valid) return null;
 
         return {

@@ -3,8 +3,8 @@
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { hashPassword } from "@/lib/password";
 import { adminRequestSchema, loginSchema, registerSchema } from "@/lib/validation";
 import { auth, signIn } from "@/auth";
 
@@ -44,7 +44,7 @@ export async function registerAction(
       name,
       email,
       phone: phone || null,
-      password: await bcrypt.hash(password, 10),
+      password: await hashPassword(password),
     },
   });
 

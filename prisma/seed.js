@@ -1,5 +1,13 @@
 const { PrismaClient } = require("@prisma/client");
-const bcrypt = require("bcryptjs");
+const { pbkdf2Sync, randomBytes } = require("node:crypto");
+
+// অ্যাপের `src/lib/password.ts`-এর সাথে একই ফরম্যাট: pbkdf2$iterations$salt$hash
+function hashPassword(password) {
+  const iterations = 100000;
+  const salt = randomBytes(16);
+  const hash = pbkdf2Sync(password, salt, iterations, 32, "sha256");
+  return `pbkdf2$${iterations}$${salt.toString("base64")}$${hash.toString("base64")}`;
+}
 
 const prisma = new PrismaClient();
 
@@ -32,9 +40,9 @@ async function reset() {
 async function main() {
   await reset();
 
-  const adminPassword = await bcrypt.hash("admin123", 10);
-  const customerPassword = await bcrypt.hash("customer123", 10);
-  const sellerPassword = await bcrypt.hash("seller123", 10);
+  const adminPassword = hashPassword("admin123");
+  const customerPassword = hashPassword("customer123");
+  const sellerPassword = hashPassword("seller123");
 
   const admin = await prisma.user.create({
     data: {

@@ -3,8 +3,8 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
-import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { hashPassword } from "@/lib/password";
 import { categorySchema, productSchema, couponSchema, bannerSchema, siteSettingsSchema, staffSchema, staffPermissionsSchema } from "@/lib/validation";
 import { slugify, formatBDT } from "@/lib/format";
 import { COMMISSION_SETTING_KEY, SITE_SETTING_KEYS } from "@/lib/site-settings";
@@ -1017,7 +1017,7 @@ export async function createStaff(_prevState: AdminState, formData: FormData): P
     data: {
       name: parsed.data.name,
       email: parsed.data.email,
-      password: await bcrypt.hash(parsed.data.password, 10),
+      password: await hashPassword(parsed.data.password),
       role: "STAFF",
       permissions: parsed.data.permissions,
     },
