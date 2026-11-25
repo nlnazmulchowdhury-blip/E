@@ -58,8 +58,8 @@ export const productSchema = z
             .split(/\r?\n/)
             .map((s) => s.trim())
             .filter(Boolean)
-            .every((u) => /^https?:\/\//i.test(u)),
-        { message: "প্রতিটি ছবির লিংক http(s):// দিয়ে শুরু হতে হবে, প্রতি লাইনে একটি" }
+            .every((u) => /^(https?:\/\/|\/(?!\/))/i.test(u)),
+        { message: "প্রতিটি ছবির লিংক http(s):// বা / দিয়ে শুরু হতে হবে, প্রতি লাইনে একটি" }
       ),
     isFlashSale: z.string().optional(),
     flashSalePrice: optionalPrice.optional(),
@@ -155,7 +155,7 @@ export const bannerSchema = z.object({
     .string()
     .trim()
     .min(1, "ছবির লিংক দিন")
-    .regex(/^https?:\/\//i, "ছবির লিংক http(s):// দিয়ে শুরু হতে হবে"),
+    .regex(/^(https?:\/\/|\/(?!\/))/i, "ছবির লিংক http(s):// বা / দিয়ে শুরু হতে হবে"),
   linkUrl: z.string().trim().optional().or(z.literal("")),
   position: z.enum(["HERO", "STRIP", "PROMO"], { message: "পজিশন নির্বাচন করুন" }),
   sortOrder: z.coerce.number().int("পূর্ণ সংখ্যা দিন").min(0, "০ বা তার বেশি দিন"),

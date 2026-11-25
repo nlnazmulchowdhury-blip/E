@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Heart, User, Search, Store, Bell } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { auth, signOut } from "@/auth";
-import { getCart, getCartCount, getCategories, getUnreadNotificationCount } from "@/lib/data";
+import { signOut } from "@/auth";
+import { getSession } from "@/lib/session";
+import { getCart, getCategories, getUnreadNotificationCount } from "@/lib/data";
 import { toCartDrawerItems } from "@/lib/cart-view";
 import { Button } from "@/components/ui/button";
 import { CartDrawer, CartTrigger } from "@/components/cart/cart-drawer";
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 async function AccountMenu() {
-  const session = await auth();
+  const session = await getSession();
   const t = await getTranslations("Header");
 
   if (!session?.user) {
@@ -83,15 +84,18 @@ async function AccountMenu() {
 }
 
 export async function Header() {
-  const session = await auth();
-  const cartCount = session?.user?.id ? await getCartCount(session.user.id) : 0;
-  const cartItems = session?.user?.id
-    ? toCartDrawerItems(await getCart(session.user.id))
-    : [];
-  const unreadNotifications = session?.user?.id
-    ? await getUnreadNotificationCount(session.user.id)
-    : 0;
-  const categories = await getCategories();
+  const session = await getSession();
+  const userId = session?.user?.id;
+  // হেডার প্রতিটি পেজে রেন্ডার হয় — তাই কুয়েরিগুলো একসাথে (parallel) চালাই,
+  // নাহলে লগইন থাকা ইউজারের প্রতি পেজেই ৪টি কুয়েরি একটার পর একটা ঘোরে।
+  const [cartItemRows, unreadNotifications, categories] = await Promise.all([
+    userId ? getCart(userId) : Promise.resolve([] as Awaited<ReturnType<typeof getCart>>),
+    userId ? getUnreadNotificationCount(userId) : Promise.resolve(0),
+    getCategories(),
+  ]);
+  const cartItems = toCartDrawerItems(cartItemRows);
+  // আলাদা কাউন্ট কুয়েরি না করে কার্ট আইটেন থেকেই হিসাব
+  const cartCount = cartItemRows.reduce((sum, item) => sum + item.quantity, 0);
   const t = await getTranslations("Header");
 
   return (

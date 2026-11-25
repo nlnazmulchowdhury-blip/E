@@ -12,6 +12,7 @@ import { ProductActions } from "@/components/product/product-actions";
 import { OrderContactButtons } from "@/components/product/order-contact-buttons";
 import { SellerCard } from "@/components/product/seller-card";
 import { ReviewForm } from "@/components/product/review-form";
+import { hasDeliveredPurchase } from "@/lib/reviews";
 import { Separator } from "@/components/ui/separator";
 import { prisma } from "@/lib/prisma";
 
@@ -28,18 +29,22 @@ export default async function ProductPage({
 
   const session = await auth();
   const userId = session?.user?.id;
-  const userReview = userId
-    ? await prisma.review.findUnique({
-        where: { userId_productId: { userId, productId: product.id } },
-      })
-    : null;
-
-  const related = await getRelatedProducts(product.categoryId, product.id);
-  const wishlisted = userId
-    ? await prisma.wishlistItem.findUnique({
-        where: { userId_productId: { userId, productId: product.id } },
-      })
-    : null;
+  // ইউজার-সংক্রান্ত কুয়েরিগুলো একসাথে চালাই (আগে একটার পর একটা চলত)
+  const [userReview, canReview, related, wishlisted] = await Promise.all([
+    userId
+      ? prisma.review.findUnique({
+          where: { userId_productId: { userId, productId: product.id } },
+        })
+      : Promise.resolve(null),
+    // প্রোডাক্টটি কিনে হাতে পাওয়ার পরেই রিভিউ দেওয়ার সুযোগ
+    userId ? hasDeliveredPurchase(userId, product.id) : Promise.resolve(false),
+    getRelatedProducts(product.categoryId, product.id),
+    userId
+      ? prisma.wishlistItem.findUnique({
+          where: { userId_productId: { userId, productId: product.id } },
+        })
+      : Promise.resolve(null),
+  ]);
   const price = Number(product.price);
   const compareAt = product.compareAtPrice ? Number(product.compareAtPrice) : null;
   const flashPrice = product.isFlashSale && product.flashSalePrice
@@ -164,7 +169,26 @@ export default async function ProductPage({
             </p>
           </div>
           <div className="space-y-4">
-            <ReviewForm productId={product.id} hasReviewed={!!userReview} />
+            {canReview ? (
+              <ReviewForm productId={product.id} hasReviewed={!!userReview} />
+            ) : (
+              <div className="rounded-xl border bg-card p-5">
+                <h3 className="mb-2 font-semibold">একটি রিভিউ লিখুন</h3>
+                <p className="text-sm text-muted-foreground">
+                  {userId ? (
+                    "রিভিউ দেওয়া যাবে শুধু প্রোডাক্টটি কিনে হাতে পাওয়ার পরে — অর্ডারটি ডেলিভারড হলে এখানে রেটিং ও মতামত লেখার ঘর দেখা যাবে।"
+                  ) : (
+                    <>
+                      রিভিউ দিতে হলে{" "}
+                      <Link href="/login" className="font-medium text-primary hover:underline">
+                        লগইন
+                      </Link>{" "}
+                      করুন এবং প্রোডাক্টটি কিনে হাতে পাওয়ার পরে রিভিউ দিন।
+                    </>
+                  )}
+                </p>
+              </div>
+            )}
             {product.reviews.length === 0 ? (
               <p className="rounded-xl border bg-card p-8 text-center text-sm text-muted-foreground">
                 এখনো কোনো রিভিউ নেই — প্রথম রিভিউটি আপনি লিখুন!

@@ -121,6 +121,8 @@ export function HeroSlider({
     cta: React.ReactNode | null;
     secondary: React.ReactNode | null;
     image?: { url: string; alt: string };
+    // ব্যানারে লিংক থাকলে পুরো স্লাইডেই ক্লিক করা যায়
+    href?: string;
   };
 
   const slides: Slide[] = [
@@ -174,12 +176,14 @@ export function HeroSlider({
       headline: b.title ?? "",
       sub: b.subtitle ?? "",
       cta: b.linkUrl ? (
-        <Button asChild size="lg" className="bg-brand text-[#111827] hover:bg-brand/90">
-          <Link href={b.linkUrl}>{t("shopNow")}</Link>
-        </Button>
+        // পুরো স্লাইড Link হলে ভিতরে আরেকটি <a> রাখা যায় না
+        <span className="inline-flex h-9 items-center rounded-md bg-brand px-4 text-sm font-medium text-[#111827]">
+          {t("shopNow")}
+        </span>
       ) : null,
       secondary: null,
       image: { url: b.imageUrl, alt: b.title ?? "" },
+      href: b.linkUrl ?? undefined,
     })),
   ];
 
@@ -191,8 +195,7 @@ export function HeroSlider({
             {slides.map((slide, i) => {
               const Heading = i === 0 ? "h1" : "h2";
               if (slide.image) {
-                return (
-                  <div key={i} className="min-w-0 flex-[0_0_100%]">
+                const banner = (
                     <div className="relative overflow-hidden rounded-2xl bg-[#f5f6f8]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -219,6 +222,16 @@ export function HeroSlider({
                         </div>
                       </div>
                     </div>
+                );
+                return (
+                  <div key={i} className="min-w-0 flex-[0_0_100%]">
+                    {slide.href ? (
+                      <Link href={slide.href} className="block">
+                        {banner}
+                      </Link>
+                    ) : (
+                      banner
+                    )}
                   </div>
                 );
               }

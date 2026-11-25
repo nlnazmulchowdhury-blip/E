@@ -5,10 +5,12 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { reviewSchema } from "@/lib/validation";
+import { hasDeliveredPurchase, REVIEW_NOT_DELIVERED_MESSAGE } from "@/lib/reviews";
 
 export type ReviewState = {
   errors?: Record<string, string[]>;
   message?: string;
+  error?: string;
 };
 
 export async function submitReview(
@@ -37,6 +39,11 @@ export async function submitReview(
   const product = await prisma.product.findUnique({ where: { id: productId } });
   if (!product) {
     return { message: "প্রোডাক্টটি পাওয়া যায়নি" };
+  }
+
+  // শুধু কিনে হাতে পাওয়া (DELIVERED) প্রোডাক্টে রিভিউ — সার্ভারেও যাচাই হয়
+  if (!(await hasDeliveredPurchase(userId, productId))) {
+    return { error: REVIEW_NOT_DELIVERED_MESSAGE };
   }
 
   const existing = await prisma.review.findUnique({

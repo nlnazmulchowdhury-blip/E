@@ -153,8 +153,8 @@ describe("HeroSlider", () => {
     expect(screen.getByText("২০% ছাড়")).toBeTruthy();
     const bannerImg = slides[3].querySelector("img");
     expect(bannerImg?.getAttribute("src")).toBe("/banner.jpg");
-    const link = (screen.getByText("ঈদ স্পেশাল অফার").closest("div") as HTMLElement)
-      .querySelector("a");
+    // পুরো ব্যানার স্লাইডটাই লিংক — ক্লিক করলে এই ঠিকানায় যাবে
+    const link = (screen.getByText("ঈদ স্পেশাল অফার").closest("a") as HTMLAnchorElement) ?? null;
     expect(link?.getAttribute("href")).toBe("/categories/fashion");
   });
 

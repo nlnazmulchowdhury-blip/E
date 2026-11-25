@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/session";
+import { getWishlistedProductIds } from "@/lib/data";
 import { formatBDT } from "@/lib/format";
 import { stockOf, type InventoryRow } from "@/lib/inventory";
 import { WishlistButton } from "@/components/product/wishlist-button";
@@ -24,14 +24,13 @@ type ProductCardData = {
 
 export async function ProductCard({ product }: { product: ProductCardData }) {
   const t = await getTranslations("Common");
-  const session = await auth();
+  const session = await getSession();
   const userId = session?.user?.id;
 
+  // পেজে যত কার্ডই থাকুক, উইশলিস্ট একবারই কুয়েরি হয় (ক্যাশড)
   const wishlisted = userId
-    ? await prisma.wishlistItem.findUnique({
-        where: { userId_productId: { userId, productId: product.id } },
-      })
-    : null;
+    ? (await getWishlistedProductIds(userId)).has(product.id)
+    : false;
 
   const price = Number(product.price);
   const compareAt = product.compareAtPrice ? Number(product.compareAtPrice) : null;

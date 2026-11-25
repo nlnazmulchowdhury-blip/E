@@ -64,6 +64,9 @@ export function ReviewForm({
       <Button type="submit" disabled={pending}>
         {pending ? "জমা হচ্ছে..." : "রিভিউ জমা দিন"}
       </Button>
+      {state.error && (
+        <p className="mt-2 text-sm text-destructive">{state.error}</p>
+      )}
       {state.message && (
         <p
           className={`mt-2 text-sm ${

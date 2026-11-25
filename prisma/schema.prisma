@@ -548,6 +548,17 @@ model Banner {
   @@index([isActive])
 }
 
+// আপলোড করা ছবি — IMGBB কী না থাকলে ডেটাবেসেই সংরক্ষিত হয়, /api/images/[id] দিয়ে সার্ভ হয়
+model MediaAsset {
+  id        String   @id @default(cuid())
+  mimeType  String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 // key-value সেটিংস — হোমপেজ সেকশন টগল, ডিফল্ট কমিশন, সাইটের তথ্য ইত্যাদি
 model SiteSetting {
   key       String   @id

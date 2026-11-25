@@ -18,7 +18,15 @@ export default async function AdminEditBannerPage({
   const { id } = await params;
   await requireAdminOrStaff("banners");
 
-  const banner = await prisma.banner.findUnique({ where: { id } });
+  const [banner, products] = await Promise.all([
+    prisma.banner.findUnique({ where: { id } }),
+    prisma.product.findMany({
+      where: { deletedAt: null },
+      select: { id: true, title: true, slug: true },
+      orderBy: { title: "asc" },
+      take: 500,
+    }),
+  ]);
   if (!banner) notFound();
 
   return (
@@ -33,6 +41,7 @@ export default async function AdminEditBannerPage({
       <div className="rounded-xl border bg-card p-5">
         <BannerForm
           bannerId={banner.id}
+          products={products}
           defaults={{
             title: banner.title ?? "",
             subtitle: banner.subtitle ?? "",

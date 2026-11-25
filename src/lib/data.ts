@@ -1,13 +1,18 @@
 import { prisma } from "@/lib/prisma";
+import { CACHE_TTL, cached } from "@/lib/cache";
 
 const IMAGES = { images: { orderBy: { position: "asc" as const } } };
 const INVENTORY = { inventory: true };
 
+// হেডার, মোবাইল নেভ, হোম, সার্চ — সবাই একই ক্যাটাগরি লিস্ট চায়। Workers-এ
+// প্রতিটি কুয়েরির জন্য নতুন কানেকশন লাগে, তাই কয়েক সেকেন্ডের জন্য ক্যাশ করি।
 export async function getCategories() {
-  return prisma.category.findMany({
-    include: { _count: { select: { products: { where: { status: "APPROVED", deletedAt: null } } } } },
-    orderBy: { name: "asc" },
-  });
+  return cached("categories", CACHE_TTL, () =>
+    prisma.category.findMany({
+      include: { _count: { select: { products: { where: { status: "APPROVED", deletedAt: null } } } } },
+      orderBy: { name: "asc" },
+    })
+  );
 }
 
 export async function getFlashSaleProducts() {
@@ -178,6 +183,21 @@ export async function getWishlist(userId: string) {
   });
 }
 
+// প্রোডাক্ট কার্ড যখন লগইন করা ইউজারের জন্য রেন্ডার হয়, তখন প্রতিটি কার্ড
+// আলাদা কুয়েরি করলে এক পেজেই ৩০টি কানেকশন খুলে যায়। তাই এক কুয়েরিতেই সব
+// প্রোডাক্ট আইডি এনে ক্যাশ করি (১০ সেকেন্ড) — উইশলিস্ট বদলালে দ্রুত রিফ্রেশ হয়।
+export async function getWishlistedProductIds(
+  userId: string
+): Promise<ReadonlySet<string>> {
+  return cached(`wishlist:${userId}`, 10_000, async () => {
+    const rows = await prisma.wishlistItem.findMany({
+      where: { userId },
+      select: { productId: true },
+    });
+    return new Set(rows.map((row) => row.productId));
+  });
+}
+
 export async function getUserAddresses(userId: string) {
   return prisma.address.findMany({
     where: { userId },
@@ -230,10 +250,12 @@ export async function getPendingProducts() {
 }
 
 export async function getActiveBanners() {
-  return prisma.banner.findMany({
-    where: { isActive: true },
-    orderBy: [{ position: "asc" }, { sortOrder: "asc" }],
-  });
+  return cached("banners", CACHE_TTL, () =>
+    prisma.banner.findMany({
+      where: { isActive: true },
+      orderBy: [{ position: "asc" }, { sortOrder: "asc" }],
+    })
+  );
 }
 
 export async function getAdminStats() {

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { invalidateCache } from "@/lib/cache";
 import { hashPassword } from "@/lib/password";
 import { categorySchema, productSchema, couponSchema, bannerSchema, siteSettingsSchema, staffSchema, staffPermissionsSchema } from "@/lib/validation";
 import { slugify, formatBDT } from "@/lib/format";
@@ -72,6 +73,7 @@ export async function createCategory(
 
   await logAudit(adminId, "CREATE", "CATEGORY", category.id, { name, slug });
 
+  invalidateCache("categories");
   revalidatePath("/admin/categories");
   revalidatePath("/");
   return { message: "ক্যাটাগরি তৈরি হয়েছে" };
@@ -88,6 +90,7 @@ export async function deleteCategory(id: string) {
   await prisma.category.delete({ where: { id } });
   await logAudit(adminId, "DELETE", "CATEGORY", id);
 
+  invalidateCache("categories");
   revalidatePath("/admin/categories");
   revalidatePath("/");
 }
@@ -636,6 +639,7 @@ export async function updateDefaultCommission(
     rate: parsed.data,
   });
 
+  invalidateCache("site-settings");
   revalidatePath("/admin/commission");
   return { message: "ডিফল্ট কমিশন হার আপডেট হয়েছে" };
 }
@@ -875,6 +879,7 @@ export async function createBanner(
     title: banner.title,
   });
 
+  invalidateCache("banners");
   revalidatePath("/admin/banners");
   revalidatePath("/");
   return { message: "ব্যানার তৈরি হয়েছে" };
@@ -906,6 +911,7 @@ export async function updateBanner(
     title: parsed.data.title || null,
   });
 
+  invalidateCache("banners");
   revalidatePath("/admin/banners");
   revalidatePath("/");
   return { message: "ব্যানার আপডেট হয়েছে" };
@@ -921,6 +927,7 @@ export async function toggleBanner(id: string) {
   await prisma.banner.update({ where: { id }, data: { isActive: next } });
   await logAudit(adminId, "UPDATE", "BANNER", id, { isActive: next });
 
+  invalidateCache("banners");
   revalidatePath("/admin/banners");
   revalidatePath("/");
 }
@@ -935,6 +942,7 @@ export async function deleteBanner(id: string) {
   await prisma.banner.delete({ where: { id } });
   await logAudit(adminId, "DELETE", "BANNER", id, { title: existing.title });
 
+  invalidateCache("banners");
   revalidatePath("/admin/banners");
   revalidatePath("/");
 }
@@ -989,6 +997,7 @@ export async function saveSiteSettings(
     keys: entries.map(([key]) => key),
   });
 
+  invalidateCache("site-settings");
   revalidatePath("/admin/settings");
   revalidatePath("/");
   return { message: "সেটিংস সেভ হয়েছে" };

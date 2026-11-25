@@ -8,7 +8,7 @@ import {
   getBestRatedProducts,
   getActiveBanners,
 } from "@/lib/data";
-import { getSiteSetting, SITE_SETTING_KEYS } from "@/lib/site-settings";
+import { getSiteSettings, SITE_SETTING_KEYS } from "@/lib/site-settings";
 import { ProductCard } from "@/components/product/product-card";
 import { HeroSlider } from "@/components/home/hero-slider";
 import { Button } from "@/components/ui/button";
@@ -27,18 +27,25 @@ const categoryIcons: Record<string, string> = {
 
 export default async function HomePage() {
   const t = await getTranslations("Home");
-  const [categories, flashSale, newArrivals, bestRated, banners, announcement, showFlashSale, showNewArrivals, showBestRated] =
-    await Promise.all([
-      getCategories(),
-      getFlashSaleProducts(),
-      getNewArrivals(),
-      getBestRatedProducts(),
-      getActiveBanners(),
-      getSiteSetting<string>(SITE_SETTING_KEYS.announcement),
-      getSiteSetting<boolean>(SITE_SETTING_KEYS.showFlashSale),
-      getSiteSetting<boolean>(SITE_SETTING_KEYS.showNewArrivals),
-      getSiteSetting<boolean>(SITE_SETTING_KEYS.showBestRated),
-    ]);
+  const [categories, flashSale, newArrivals, bestRated, banners, settings] = await Promise.all([
+    getCategories(),
+    getFlashSaleProducts(),
+    getNewArrivals(),
+    getBestRatedProducts(),
+    getActiveBanners(),
+    // চারটি আলাদা সেটিং কুয়েরির বদলে একটাই কুয়েরি
+    getSiteSettings([
+      SITE_SETTING_KEYS.announcement,
+      SITE_SETTING_KEYS.showFlashSale,
+      SITE_SETTING_KEYS.showNewArrivals,
+      SITE_SETTING_KEYS.showBestRated,
+    ]),
+  ]);
+
+  const announcement = (settings[SITE_SETTING_KEYS.announcement] as string | null) ?? null;
+  const showFlashSale = settings[SITE_SETTING_KEYS.showFlashSale];
+  const showNewArrivals = settings[SITE_SETTING_KEYS.showNewArrivals];
+  const showBestRated = settings[SITE_SETTING_KEYS.showBestRated];
 
   const heroBanners = banners
     .filter((b) => b.position === "HERO")

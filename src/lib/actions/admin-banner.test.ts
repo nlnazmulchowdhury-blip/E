@@ -110,6 +110,17 @@ describe("createBanner", () => {
     expect(data.linkUrl).toBeNull();
   });
 
+  it("আপলোড করা সাইট-অভ্যন্তরীণ ছবির লিংক (/api/images/...) গ্রহণ করে", async () => {
+    const fd = validBannerForm();
+    fd.set("imageUrl", "/api/images/cmwuymip30000uk1k84sg0fuu");
+    const result = await createBanner({}, fd);
+
+    expect(result).toEqual({ message: "ব্যানার তৈরি হয়েছে" });
+    expect(mocks.prisma.banner.create.mock.calls[0][0].data.imageUrl).toBe(
+      "/api/images/cmwuymip30000uk1k84sg0fuu"
+    );
+  });
+
   it("ভুল ছবির লিংকে এরর, তৈরি করে না", async () => {
     const fd = validBannerForm();
     fd.set("imageUrl", "ftp://bad.example/a.jpg");

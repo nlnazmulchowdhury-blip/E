@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { createBanner, updateBanner, type AdminState } from "@/lib/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ImageUrlInput } from "@/components/shared/image-url-input";
 
 const POSITION_LABELS: Record<string, string> = {
   HERO: "হিরো স্লাইডার",
@@ -24,16 +25,25 @@ export type BannerFormDefaults = {
   isActive: boolean;
 };
 
+export type BannerProductOption = { id: string; title: string; slug: string };
+
 export function BannerForm({
   bannerId,
   defaults,
+  products = [],
 }: {
   bannerId?: string;
   defaults?: BannerFormDefaults;
+  products?: BannerProductOption[];
 }) {
   const action = bannerId ? updateBanner.bind(null, bannerId) : createBanner;
   const [state, formAction, pending] = useActionState<AdminState, FormData>(action, {});
   const isEdit = !!bannerId;
+
+  // লিংকের বদলে লিস্ট থেকে প্রোডাক্ট বেছে নিলে সরাসরি তার পেজে যাবে
+  const [linkUrl, setLinkUrl] = useState(defaults?.linkUrl ?? "");
+  const selectedProductId =
+    products.find((p) => `/products/${p.slug}` === linkUrl)?.id ?? "";
 
   return (
     <form action={formAction} className="space-y-4">
@@ -64,18 +74,13 @@ export function BannerForm({
         </div>
       </div>
 
-      <div>
-        <Label htmlFor="imageUrl">ছবির লিংক</Label>
-        <Input
-          id="imageUrl"
-          name="imageUrl"
-          placeholder="https://example.com/banner.jpg"
-          defaultValue={defaults?.imageUrl ?? ""}
-        />
-        {state.errors?.imageUrl && (
-          <p className="mt-1 text-xs text-destructive">{state.errors.imageUrl[0]}</p>
-        )}
-      </div>
+      <ImageUrlInput
+        id="imageUrl"
+        name="imageUrl"
+        single
+        defaultValue={defaults?.imageUrl ?? ""}
+        error={state.errors?.imageUrl?.[0]}
+      />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
@@ -83,12 +88,32 @@ export function BannerForm({
           <Input
             id="linkUrl"
             name="linkUrl"
-            placeholder="/categories/fashion"
-            defaultValue={defaults?.linkUrl ?? ""}
+            placeholder="/products/product-slug"
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
           />
           {state.errors?.linkUrl && (
             <p className="mt-1 text-xs text-destructive">{state.errors.linkUrl[0]}</p>
           )}
+        </div>
+        <div>
+          <Label htmlFor="productPick">প্রোডাক্ট লিংক (ঐচ্ছিক)</Label>
+          <select
+            id="productPick"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+            value={selectedProductId}
+            onChange={(e) => {
+              const picked = products.find((p) => p.id === e.target.value);
+              setLinkUrl(picked ? `/products/${picked.slug}` : "");
+            }}
+          >
+            <option value="">— প্রোডাক্ট সিলেক্ট করুন —</option>
+            {products.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.title}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <Label htmlFor="position">পজিশন</Label>

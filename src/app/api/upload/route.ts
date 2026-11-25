@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
@@ -17,7 +18,7 @@ type ImgbbResponse = {
   error?: { message?: string; code?: number };
 };
 
-// শুধু অ্যাডমিন ও সেলার; ছবি imgbb-তে যায়, API কী সার্ভারেই থাকে
+// শুধু অ্যাডমিন ও সেলার; ছবি imgbb-তে (কী থাকলে) বা নিজের ডেটাবেসে যায়, কী সার্ভারেই থাকে
 export async function POST(req: Request) {
   const session = await auth();
   const role = session?.user?.role;
@@ -44,12 +45,21 @@ export async function POST(req: Request) {
   }
 
   const apiKey = process.env.IMGBB_API_KEY;
+  // imgbb কী না থাকলে ছবিটি ডেটাবেসে রেখে নিজের সার্ভার থেকেই সার্ভ করা হয়
   if (!apiKey) {
-    console.error("[upload] IMGBB_API_KEY সেট করা নেই");
-    return NextResponse.json(
-      { error: "ছবি আপলোড সার্ভিস কনফিগার করা নেই" },
-      { status: 500 }
-    );
+    try {
+      const asset = await prisma.mediaAsset.create({
+        data: {
+          mimeType: file.type,
+          size: file.size,
+          data: new Uint8Array(await file.arrayBuffer()),
+        },
+      });
+      return NextResponse.json({ url: `/api/images/${asset.id}` });
+    } catch (e) {
+      console.error("[upload] ডেটাবেসে ছবি রাখা যায়নি:", e);
+      return NextResponse.json({ error: UPLOAD_FAILED }, { status: 502 });
+    }
   }
 
   const body = new FormData();

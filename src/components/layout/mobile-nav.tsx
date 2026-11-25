@@ -1,9 +1,9 @@
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { getCartCount, getCategories } from "@/lib/data";
 import { MobileNavBar } from "@/components/layout/mobile-nav-bar";
 
 export async function MobileNav() {
-  const session = await auth();
+  const session = await getSession();
   const [cartCount, categories] = await Promise.all([
     session?.user?.id ? getCartCount(session.user.id) : Promise.resolve(0),
     getCategories(),

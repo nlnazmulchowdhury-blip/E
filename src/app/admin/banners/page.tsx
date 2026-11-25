@@ -18,9 +18,15 @@ const POSITION_LABELS: Record<string, string> = {
 
 export default async function AdminBannersPage() {
   await requireAdminOrStaff("banners");
-  const banners = await prisma.banner.findMany({
-    orderBy: [{ position: "asc" }, { sortOrder: "asc" }],
-  });
+  const [banners, products] = await Promise.all([
+    prisma.banner.findMany({ orderBy: [{ position: "asc" }, { sortOrder: "asc" }] }),
+    prisma.product.findMany({
+      where: { deletedAt: null },
+      select: { id: true, title: true, slug: true },
+      orderBy: { title: "asc" },
+      take: 500,
+    }),
+  ]);
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -30,7 +36,7 @@ export default async function AdminBannersPage() {
 
       <div className="mb-8 rounded-xl border bg-card p-5">
         <h2 className="mb-4 font-semibold">নতুন ব্যানার</h2>
-        <BannerForm />
+        <BannerForm products={products} />
       </div>
 
       <h2 className="mb-3 font-semibold">সব ব্যানার ({banners.length})</h2>

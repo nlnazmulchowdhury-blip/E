@@ -3,9 +3,13 @@ import { POST } from "./route";
 
 const mocks = vi.hoisted(() => ({
   auth: vi.fn(),
+  createAsset: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({ auth: mocks.auth }));
+vi.mock("@/lib/prisma", () => ({
+  prisma: { mediaAsset: { create: mocks.createAsset } },
+}));
 
 const IMGBB_URL = "https://i.ibb.co/demo/photo.png";
 
@@ -34,6 +38,7 @@ let fetchMock: ReturnType<typeof vi.fn>;
 beforeEach(() => {
   vi.clearAllMocks();
   process.env.IMGBB_API_KEY = "test-key";
+  mocks.createAsset.mockResolvedValue({ id: "asset-1" });
   fetchMock = vi.fn().mockResolvedValue(okResponse());
   vi.stubGlobal("fetch", fetchMock);
 });
@@ -89,13 +94,15 @@ describe("POST /api/upload", () => {
     expect((await res.json()).error).toContain("৫MB");
   });
 
-  it("API কী সেট না থাকলে 500 দেয়", async () => {
+  it("API কী সেট না থাকলে ছবি ডেটাবেসে রেখে নিজের URL দেয়", async () => {
     mocks.auth.mockResolvedValue({ user: { id: "a1", role: "ADMIN" } });
     delete process.env.IMGBB_API_KEY;
 
     const res = await POST(fileRequest("image/png"));
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(200);
+    expect((await res.json()).url).toBe("/api/images/asset-1");
+    expect(mocks.createAsset).toHaveBeenCalledTimes(1);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
