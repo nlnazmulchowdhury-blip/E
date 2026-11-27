@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, FolderTree, Package, ShoppingBag, Users, Store, Banknote, Ticket, Percent, RotateCcw, History, BarChart3, Image, Settings, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, FolderTree, Package, ShoppingBag, Users, Store, Banknote, Ticket, Percent, RotateCcw, History, BarChart3, Image, Images, Settings, ShieldCheck } from "lucide-react";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/permissions";
@@ -25,7 +25,8 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/admin/commission", label: "কমিশন", icon: Percent, perm: "commission" },
   { href: "/admin/coupons", label: "কুপন", icon: Ticket, perm: "coupons" },
   { href: "/admin/customers", label: "কাস্টমার", icon: Users, perm: "customers" },
-  { href: "/admin/banners", label: "ব্যানার", icon: Image, perm: "banners" },
+  { href: "/admin/banners", label: "ব্যানার", icon: Image, perm: "banners", exact: true },
+  { href: "/admin/banners/all", label: "সব ব্যানার", icon: Images, perm: "banners" },
   { href: "/admin/settings", label: "সেটিংস", icon: Settings, perm: "settings" },
   { href: "/admin/staff", label: "স্টাফ", icon: ShieldCheck, adminOnly: true },
   { href: "/admin/audit-logs", label: "অডিট লগ", icon: History, adminOnly: true },

@@ -881,6 +881,7 @@ export async function createBanner(
 
   invalidateCache("banners");
   revalidatePath("/admin/banners");
+  revalidatePath("/admin/banners/all");
   revalidatePath("/");
   return { message: "ব্যানার তৈরি হয়েছে" };
 }
@@ -913,6 +914,7 @@ export async function updateBanner(
 
   invalidateCache("banners");
   revalidatePath("/admin/banners");
+  revalidatePath("/admin/banners/all");
   revalidatePath("/");
   return { message: "ব্যানার আপডেট হয়েছে" };
 }
@@ -929,6 +931,7 @@ export async function toggleBanner(id: string) {
 
   invalidateCache("banners");
   revalidatePath("/admin/banners");
+  revalidatePath("/admin/banners/all");
   revalidatePath("/");
 }
 
@@ -944,6 +947,7 @@ export async function deleteBanner(id: string) {
 
   invalidateCache("banners");
   revalidatePath("/admin/banners");
+  revalidatePath("/admin/banners/all");
   revalidatePath("/");
 }
 

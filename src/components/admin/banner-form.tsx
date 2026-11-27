@@ -160,7 +160,7 @@ export function BannerForm({
         </Button>
         {isEdit && (
           <Button asChild variant="ghost">
-            <Link href="/admin/banners">বাতিল</Link>
+            <Link href="/admin/banners/all">বাতিল</Link>
           </Button>
         )}
       </div>
@@ -171,7 +171,7 @@ export function BannerForm({
           {!isEdit && (
             <>
               {" "}
-              <Link href="/admin/banners" className="font-medium underline">
+              <Link href="/admin/banners/all" className="font-medium underline">
                 ব্যানার লিস্টে যান
               </Link>
             </>

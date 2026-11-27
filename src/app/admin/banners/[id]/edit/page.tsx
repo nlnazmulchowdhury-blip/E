@@ -32,7 +32,7 @@ export default async function AdminEditBannerPage({
   return (
     <div className="mx-auto max-w-4xl">
       <Button asChild variant="ghost" size="sm" className="mb-4">
-        <Link href="/admin/banners">
+        <Link href="/admin/banners/all">
           <ArrowLeft className="size-4" />
           ব্যানার লিস্টে ফিরুন
         </Link>
