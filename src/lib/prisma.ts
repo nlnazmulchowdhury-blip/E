@@ -1,3 +1,4 @@
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
@@ -9,8 +10,22 @@ const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 const isWorkers =
   typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers";
 
+// Workers-এ Hyperdrive binding থাকলে সেটির কানেকশন স্ট্রিং ব্যবহার করি — Hyperdrive
+// ডেটাবেসের কাছে কানেকশন পুল রাখে, তাই প্রতিটি কুয়েরিতে Neon-এর সাথে নতুন
+// TCP+TLS হ্যান্ডশেক লাগে না। লোকাল `next dev`/বিল্ডে বাইন্ডিং থাকে না, তখন
+// সাধারণ DATABASE_URL-এ ফিরে যাই।
+function hyperdriveConnectionString(): string | undefined {
+  try {
+    const { env } = getCloudflareContext();
+    const hyperdrive = (env as { HYPERDRIVE?: { connectionString?: string } }).HYPERDRIVE;
+    return hyperdrive?.connectionString;
+  } catch {
+    return undefined;
+  }
+}
+
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL;
+  const connectionString = hyperdriveConnectionString() ?? process.env.DATABASE_URL;
 
   if (!connectionString) {
     throw new Error("DATABASE_URL is not set");

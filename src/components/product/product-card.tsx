@@ -41,7 +41,7 @@ export async function ProductCard({ product }: { product: ProductCardData }) {
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md">
       <div className="relative aspect-square overflow-hidden bg-muted">
-        <Link href={`/products/${product.slug}`} className="block size-full">
+        <Link href={`/products/${product.slug}`} prefetch={false} className="block size-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={product.images[0]?.url ?? "/placeholder.svg"}
@@ -64,6 +64,7 @@ export async function ProductCard({ product }: { product: ProductCardData }) {
       <div className="flex flex-1 flex-col gap-2 p-3.5">
         <Link
           href={`/products/${product.slug}`}
+          prefetch={false}
           className="line-clamp-2 text-sm font-medium leading-6 hover:text-primary"
         >
           {product.title}

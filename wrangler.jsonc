@@ -12,6 +12,15 @@
   "observability": {
     "enabled": true
   },
+  // Workers-এ প্রতি কুয়েরিতেই নতুন TCP+TLS কানেকশন খুললে প্রতিটি কুয়েরি
+  // ২০০ms+ নেয়। Hyperdrive ডেটাবেসের কাছে কানেকশন পুল রাখে, তাই Worker
+  // শুধু লোকাল সকেটে কানেক্ট করে — কুয়েরিপ্রতি সময় কয়েকগুণ কমে যায়।
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "1c30518f0e874e21baa20c5db2aed535"
+    }
+  ],
   // NextAuth নিজেই host যাচাই করে; Cloudflare-এর ডোমেইন থেকে আসা রিকোয়েস্ট
   // বিশ্বাসযোগ্য ঘোষণা না করলে UntrustedHost এরর হয়।
   "vars": {
