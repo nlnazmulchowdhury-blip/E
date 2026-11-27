@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Hind_Siliguri } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import { Header } from "@/components/layout/header";
+import { HeaderSkeleton } from "@/components/layout/header-skeleton";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import "./globals.css";
@@ -44,7 +46,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <NextIntlClientProvider>
-          <Header />
+          {/* হেডারের কুয়েরি শেষ হওয়ার আগেই বাকি পেজ স্ট্রিম হতে থাকুক */}
+          <Suspense fallback={<HeaderSkeleton />}>
+            <Header />
+          </Suspense>
           <main className="flex-1">{children}</main>
           <Footer />
           {/* মোবাইল বটম-নেভের জন্য জায়গা */}

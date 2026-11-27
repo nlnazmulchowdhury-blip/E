@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { Zap, Megaphone } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -7,6 +8,7 @@ import {
   getNewArrivals,
   getBestRatedProducts,
   getActiveBanners,
+  getHeroCollageImages,
 } from "@/lib/data";
 import { getSiteSettings, SITE_SETTING_KEYS } from "@/lib/site-settings";
 import { ProductCard } from "@/components/product/product-card";
@@ -25,28 +27,50 @@ const categoryIcons: Record<string, string> = {
   "sports-outdoors": "🏏",
 };
 
-export default async function HomePage() {
-  const t = await getTranslations("Home");
-  const [categories, flashSale, newArrivals, bestRated, banners, settings] = await Promise.all([
-    getCategories(),
-    getFlashSaleProducts(),
-    getNewArrivals(),
-    getBestRatedProducts(),
+function HeroSkeleton() {
+  return (
+    <section className="border-b bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-4 md:py-6">
+        <div className="h-64 w-full animate-pulse rounded-2xl bg-muted md:h-[21rem] lg:h-[24rem]" />
+      </div>
+    </section>
+  );
+}
+
+function CardGridSkeleton({ count = 5 }: { count?: number }) {
+  return (
+    <div className="grid animate-pulse grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="space-y-2 rounded-xl border p-3">
+          <div className="aspect-square rounded-lg bg-muted" />
+          <div className="h-3 w-3/4 rounded bg-muted" />
+          <div className="h-3 w-1/2 rounded bg-muted" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CatalogSkeleton() {
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-10">
+      <div className="mb-6 h-7 w-44 animate-pulse rounded bg-muted" />
+      <CardGridSkeleton />
+    </div>
+  );
+}
+
+// ইউজার প্রথমে যা দেখে — ঘোষণা বার + হিরো। শুধু হালকা কুয়েরিগুলো এখানে,
+// তাই নামের নিচের প্রোডাক্ট সেকশনের জন্য অপেক্ষা না করেই এটা আঁকা হয়ে যায়।
+async function HomeHero() {
+  const [banners, settings, heroImages] = await Promise.all([
     getActiveBanners(),
-    // চারটি আলাদা সেটিং কুয়েরির বদলে একটাই কুয়েরি
-    getSiteSettings([
-      SITE_SETTING_KEYS.announcement,
-      SITE_SETTING_KEYS.showFlashSale,
-      SITE_SETTING_KEYS.showNewArrivals,
-      SITE_SETTING_KEYS.showBestRated,
-    ]),
+    getSiteSettings([SITE_SETTING_KEYS.announcement]),
+    getHeroCollageImages(),
   ]);
 
-  const announcement = (settings[SITE_SETTING_KEYS.announcement] as string | null) ?? null;
-  const showFlashSale = settings[SITE_SETTING_KEYS.showFlashSale];
-  const showNewArrivals = settings[SITE_SETTING_KEYS.showNewArrivals];
-  const showBestRated = settings[SITE_SETTING_KEYS.showBestRated];
-
+  const announcement =
+    (settings[SITE_SETTING_KEYS.announcement] as string | null) ?? null;
   const heroBanners = banners
     .filter((b) => b.position === "HERO")
     .map((b) => ({
@@ -56,21 +80,9 @@ export default async function HomePage() {
       imageUrl: b.imageUrl,
       linkUrl: b.linkUrl,
     }));
-  const stripBanners = banners.filter((b) => b.position === "STRIP");
-  const promoBanners = banners.filter((b) => b.position === "PROMO");
-
-  const heroImages = Array.from(
-    new Map(
-      [...flashSale, ...newArrivals, ...bestRated].map((p) => [
-        p.id,
-        { url: p.images[0]?.url ?? "/placeholder.svg", title: p.title },
-      ])
-    ).values()
-  ).slice(0, 9);
 
   return (
-    <div>
-      {/* Announcement */}
+    <>
       {announcement && (
         <div className="border-b bg-navy text-white">
           <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-2 text-center text-xs md:text-sm">
@@ -80,9 +92,38 @@ export default async function HomePage() {
         </div>
       )}
 
-      {/* Hero */}
       <HeroSlider images={heroImages} banners={heroBanners} />
+    </>
+  );
+}
 
+// স্ক্রল করে নিচে গেলে যেসব সেকশন আসে — এগুলো আলাদা স্ট্রিমে পাঠাই।
+async function HomeCatalog() {
+  const t = await getTranslations("Home");
+  const [categories, flashSale, newArrivals, bestRated, banners, settings] =
+    await Promise.all([
+      getCategories(),
+      getFlashSaleProducts(),
+      getNewArrivals(),
+      getBestRatedProducts(),
+      getActiveBanners(),
+      // চারটি আলাদা সেটিং কুয়েরির বদলে একটাই কুয়েরি
+      getSiteSettings([
+        SITE_SETTING_KEYS.showFlashSale,
+        SITE_SETTING_KEYS.showNewArrivals,
+        SITE_SETTING_KEYS.showBestRated,
+      ]),
+    ]);
+
+  const showFlashSale = settings[SITE_SETTING_KEYS.showFlashSale];
+  const showNewArrivals = settings[SITE_SETTING_KEYS.showNewArrivals];
+  const showBestRated = settings[SITE_SETTING_KEYS.showBestRated];
+
+  const stripBanners = banners.filter((b) => b.position === "STRIP");
+  const promoBanners = banners.filter((b) => b.position === "PROMO");
+
+  return (
+    <>
       {/* Strip banners */}
       {stripBanners.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-4">
@@ -208,6 +249,19 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+    </>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <div>
+      <Suspense fallback={<HeroSkeleton />}>
+        <HomeHero />
+      </Suspense>
+      <Suspense fallback={<CatalogSkeleton />}>
+        <HomeCatalog />
+      </Suspense>
     </div>
   );
 }

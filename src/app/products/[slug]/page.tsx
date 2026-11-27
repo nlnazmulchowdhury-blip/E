@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Truck, RotateCcw } from "lucide-react";
@@ -30,7 +31,7 @@ export default async function ProductPage({
   const session = await auth();
   const userId = session?.user?.id;
   // ইউজার-সংক্রান্ত কুয়েরিগুলো একসাথে চালাই (আগে একটার পর একটা চলত)
-  const [userReview, canReview, related, wishlisted] = await Promise.all([
+  const [userReview, canReview, wishlisted] = await Promise.all([
     userId
       ? prisma.review.findUnique({
           where: { userId_productId: { userId, productId: product.id } },
@@ -38,7 +39,6 @@ export default async function ProductPage({
       : Promise.resolve(null),
     // প্রোডাক্টটি কিনে হাতে পাওয়ার পরেই রিভিউ দেওয়ার সুযোগ
     userId ? hasDeliveredPurchase(userId, product.id) : Promise.resolve(false),
-    getRelatedProducts(product.categoryId, product.id),
     userId
       ? prisma.wishlistItem.findUnique({
           where: { userId_productId: { userId, productId: product.id } },
@@ -220,17 +220,44 @@ export default async function ProductPage({
         </div>
       </section>
 
-      {/* Related */}
-      {related.length > 0 && (
-        <section className="mt-14">
-          <h2 className="mb-6 text-xl font-bold">সম্পর্কিত প্রোডাক্ট</h2>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-            {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
+      {/* Related — পেজের নিচের অংশ, তাই মূল তথ্যের পরে আলাদা স্ট্রিমে আসে */}
+      <Suspense
+        fallback={
+          <div className="mt-14 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="animate-pulse space-y-2 rounded-xl border p-3">
+                <div className="aspect-square rounded-lg bg-muted" />
+                <div className="h-3 w-3/4 rounded bg-muted" />
+                <div className="h-3 w-1/2 rounded bg-muted" />
+              </div>
             ))}
           </div>
-        </section>
-      )}
+        }
+      >
+        <RelatedProducts categoryId={product.categoryId} productId={product.id} />
+      </Suspense>
     </div>
+  );
+}
+
+async function RelatedProducts({
+  categoryId,
+  productId,
+}: {
+  categoryId: string;
+  productId: string;
+}) {
+  const related = await getRelatedProducts(categoryId, productId);
+  if (related.length === 0) return null;
+
+  return (
+    <section className="mt-14">
+      <h2 className="mb-6 text-xl font-bold">সম্পর্কিত প্রোডাক্ট</h2>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        {related.map((p) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </div>
+    </section>
   );
 }

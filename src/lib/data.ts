@@ -47,6 +47,28 @@ export async function getBestRatedProducts() {
   });
 }
 
+// হোম হিরোর কোলাজে মাত্র ৯টি ছবি লাগে। পুরো প্রোডাক্ট লিস্টের জন্য অপেক্ষা না
+// করে একটি হালকা কুয়েরি দিয়ে হিরো আগে আঁকা যায়, বাকি সেকশনগুলো পরে স্ট্রিম হয়।
+export async function getHeroCollageImages() {
+  return cached("hero-collage", CACHE_TTL, async () => {
+    const rows = await prisma.product.findMany({
+      where: { status: "APPROVED", deletedAt: null },
+      select: {
+        id: true,
+        title: true,
+        images: { select: { url: true }, orderBy: { position: "asc" }, take: 1 },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 9,
+    });
+
+    return rows.map((row) => ({
+      url: row.images[0]?.url ?? "/placeholder.svg",
+      title: row.title,
+    }));
+  });
+}
+
 export async function getProductsByCategory(slug: string, page = 1) {
   const pageSize = 12;
   const where = {
