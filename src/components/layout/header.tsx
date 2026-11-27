@@ -105,8 +105,8 @@ export async function Header() {
           <img
             src="/temobay-logo.png"
             alt="TemoBay"
-            width={602}
-            height={160}
+            width={608}
+            height={128}
             className="h-9 w-auto sm:h-10"
           />
         </Link>

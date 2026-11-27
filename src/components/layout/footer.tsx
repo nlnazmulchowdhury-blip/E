@@ -12,8 +12,8 @@ export async function Footer() {
             <img
               src="/temobay-logo-light.png"
               alt="TemoBay"
-              width={527}
-              height={140}
+              width={608}
+              height={128}
               className="h-8 w-auto"
             />
           </div>
