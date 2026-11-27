@@ -8,13 +8,13 @@ export async function Footer() {
     <footer className="border-t border-[#2f2f2f] bg-[#1d1d1d] text-[#b8b8b8]">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <div className="inline-flex items-center rounded-xl bg-white px-3 py-2">
+          <div className="inline-flex items-center">
             <img
-              src="/temobay-logo.png"
+              src="/temobay-logo-light.png"
               alt="TemoBay"
-              width={515}
-              height={160}
-              className="h-7 w-auto"
+              width={527}
+              height={140}
+              className="h-8 w-auto"
             />
           </div>
           <p className="mt-3 text-sm text-[#8f8f8f]">
