@@ -1,0 +1,5 @@
+# হ্যাশ করা বিল্ড ফাইল (JS/CSS/ফন্ট) কখনো বদলায় না, তাই ব্রাউজার ও Cloudflare
+# এজ indefinite ক্যাশ করতে পারে। ডিফল্টে `max-age=0, must-revalidate` আসে, ফলে
+# প্রতি ভিজিটে ৩০+ ফাইল আবার নেটওয়ার্কে যেত।
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
