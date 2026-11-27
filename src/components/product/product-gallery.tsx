@@ -29,7 +29,7 @@ export function ProductGallery({
               onClick={() => setActive(i)}
               aria-label={`ছবি ${i + 1}`}
               className={cn(
-                "relative shrink-0 overflow-hidden rounded-lg border-2 bg-muted transition-colors size-11 md:size-20",
+                "relative shrink-0 overflow-hidden rounded-lg border-2 bg-muted transition-colors size-11 sm:size-14 md:size-16 lg:size-20",
                 i === active ? "border-primary" : "border-muted-foreground/25 hover:border-muted-foreground/50"
               )}
             >
@@ -49,8 +49,8 @@ export function ProductGallery({
         </div>
       )}
 
-      <div className="relative flex-1 overflow-hidden rounded-2xl bg-white">
-        <div className="relative mx-auto w-full max-w-[273px] rounded-2xl border bg-white md:max-w-none">
+      <div className="relative min-w-0 flex-1 overflow-hidden rounded-2xl bg-white">
+        <div className="relative mx-auto w-full max-w-[273px] rounded-2xl border bg-white sm:max-w-[340px] md:max-w-[420px] lg:max-w-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={current?.url ?? "/placeholder.svg"}
