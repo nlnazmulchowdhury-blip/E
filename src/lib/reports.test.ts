@@ -92,7 +92,7 @@ describe("getReportsData", () => {
     const r = await getReportsData();
     expect(r.topSellers).toEqual([
       { sellerId: "sp-1", shop: "Demo Store", amount: 3498 },
-      { sellerId: null, shop: "ShopDesh (প্ল্যাটফর্ম)", amount: 2149 },
+      { sellerId: null, shop: "TemoBay (প্ল্যাটফর্ম)", amount: 2149 },
     ]);
   });
 

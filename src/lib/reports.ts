@@ -105,7 +105,7 @@ export async function getReportsData() {
     })),
     topSellers: topSellerGroups.map((g) => ({
       sellerId: g.sellerId,
-      shop: g.sellerId ? (shopName.get(g.sellerId) ?? "—") : "ShopDesh (প্ল্যাটফর্ম)",
+      shop: g.sellerId ? (shopName.get(g.sellerId) ?? "—") : "TemoBay (প্ল্যাটফর্ম)",
       amount: Number(g._sum.subtotal ?? 0),
     })),
     userCount,

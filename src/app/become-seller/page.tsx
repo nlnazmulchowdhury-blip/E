@@ -59,7 +59,7 @@ export default async function BecomeSellerPage() {
           <Store className="size-6" />
         </span>
         <div>
-          <h1 className="text-2xl font-bold">ShopDesh-এ সেলার হোন</h1>
+          <h1 className="text-2xl font-bold">TemoBay-এ সেলার হোন</h1>
           <p className="text-sm text-muted-foreground">
             আপনার শপ খুলুন, প্রোডাক্ট আপলোড করুন, অর্ডার ম্যানেজ করুন
           </p>

@@ -31,7 +31,7 @@ export default async function AdminSettingsPage() {
       <div className="rounded-xl border bg-card p-5">
         <SiteSettingsForm
           defaults={{
-            siteName: siteName ?? "ShopDesh",
+            siteName: siteName ?? "TemoBay",
             siteTagline: siteTagline ?? "",
             supportPhone: supportPhone ?? "",
             supportEmail: supportEmail ?? "",

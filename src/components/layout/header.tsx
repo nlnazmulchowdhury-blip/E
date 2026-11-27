@@ -106,7 +106,7 @@ export async function Header() {
             <Store className="size-5" />
           </span>
           <span>
-            Shop<span className="text-primary">Desh</span>
+            Temo<span className="text-primary">Bay</span>
           </span>
         </Link>
 

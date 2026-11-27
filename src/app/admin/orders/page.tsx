@@ -75,7 +75,7 @@ export default async function AdminOrdersPage() {
                   <TableRow key={sub.id}>
                     <TableCell className="font-mono text-xs">{sub.orderNumber}</TableCell>
                     <TableCell className="text-sm">
-                      {sub.seller?.shop?.name ?? "ShopDesh (প্ল্যাটফর্ম)"}
+                      {sub.seller?.shop?.name ?? "TemoBay (প্ল্যাটফর্ম)"}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {sub.items.map((i) => `${i.title} ×${i.quantity}`).join(", ")}

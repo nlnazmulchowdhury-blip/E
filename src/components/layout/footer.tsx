@@ -13,7 +13,7 @@ export async function Footer() {
             <span className="flex size-8 items-center justify-center rounded-lg bg-brand text-[#111827]">
               <Store className="size-4" />
             </span>
-            Shop<span className="text-brand">Desh</span>
+            Temo<span className="text-brand">Bay</span>
           </div>
           <p className="mt-3 text-sm text-[#8f8f8f]">
             {t("tagline")}
@@ -54,7 +54,7 @@ export async function Footer() {
         </div>
       </div>
       <div className="border-t border-[#2f2f2f] py-4 text-center text-xs text-[#8f8f8f]">
-        © {new Date().getFullYear()} ShopDesh — {t("copyright")}
+        © {new Date().getFullYear()} TemoBay — {t("copyright")}
       </div>
     </footer>
   );

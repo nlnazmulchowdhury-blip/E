@@ -98,7 +98,7 @@ export default async function OrderDetailPage({
                 <div className="flex items-center gap-2">
                   <Store className="size-4 text-muted-foreground" />
                   <CardTitle className="text-base">
-                    {sub.seller?.shop?.name ?? "ShopDesh"}
+                    {sub.seller?.shop?.name ?? "TemoBay"}
                   </CardTitle>
                   <span className="text-xs text-muted-foreground">
                     (সাব-অর্ডার #{idx + 1} · {sub.orderNumber})

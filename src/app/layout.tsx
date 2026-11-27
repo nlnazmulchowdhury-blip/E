@@ -1,11 +1,9 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Hind_Siliguri } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import { Header } from "@/components/layout/header";
-import { HeaderSkeleton } from "@/components/layout/header-skeleton";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import "./globals.css";
@@ -28,11 +26,11 @@ const bengali = Hind_Siliguri({
 
 export const metadata: Metadata = {
   title: {
-    default: "ShopDesh — ই-কমার্স ও মার্কেটপ্লেস",
-    template: "%s | ShopDesh",
+    default: "TemoBay — ই-কমার্স ও মার্কেটপ্লেস",
+    template: "%s | TemoBay",
   },
   description:
-    "ShopDesh — বাংলাদেশের সেরা অনলাইন শপিং প্ল্যাটফর্ম। ইলেকট্রনিক্স, ফ্যাশন, হোম অ্যান্ড লিভিং সহ হাজারো প্রোডাক্ট।",
+    "TemoBay — বাংলাদেশের সেরা অনলাইন শপিং প্ল্যাটফর্ম। ইলেকট্রনিক্স, ফ্যাশন, হোম অ্যান্ড লিভিং সহ হাজারো প্রোডাক্ট।",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -46,10 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <NextIntlClientProvider>
-          {/* হেডারের কুয়েরি শেষ হওয়ার আগেই বাকি পেজ স্ট্রিম হতে থাকুক */}
-          <Suspense fallback={<HeaderSkeleton />}>
-            <Header />
-          </Suspense>
+          <Header />
           <main className="flex-1">{children}</main>
           <Footer />
           {/* মোবাইল বটম-নেভের জন্য জায়গা */}
