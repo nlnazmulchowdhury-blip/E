@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Store } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 export async function Footer() {
@@ -9,11 +8,14 @@ export async function Footer() {
     <footer className="border-t border-[#2f2f2f] bg-[#1d1d1d] text-[#b8b8b8]">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2 font-bold text-lg text-white">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-brand text-[#111827]">
-              <Store className="size-4" />
-            </span>
-            Temo<span className="text-brand">Bay</span>
+          <div className="inline-flex items-center rounded-xl bg-white px-3 py-2">
+            <img
+              src="/temobay-logo.png"
+              alt="TemoBay"
+              width={515}
+              height={160}
+              className="h-7 w-auto"
+            />
           </div>
           <p className="mt-3 text-sm text-[#8f8f8f]">
             {t("tagline")}

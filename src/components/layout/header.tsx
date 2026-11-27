@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Heart, User, Search, Store, Bell } from "lucide-react";
+import { Heart, User, Search, Bell } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { signOut } from "@/auth";
 import { getSession } from "@/lib/session";
@@ -101,13 +101,14 @@ export async function Header() {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-          <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Store className="size-5" />
-          </span>
-          <span>
-            Temo<span className="text-primary">Bay</span>
-          </span>
+        <Link href="/" className="flex shrink-0 items-center" aria-label="TemoBay">
+          <img
+            src="/temobay-logo.png"
+            alt="TemoBay"
+            width={515}
+            height={160}
+            className="h-9 w-auto sm:h-10"
+          />
         </Link>
 
         <form action="/search" className="hidden flex-1 md:flex">
