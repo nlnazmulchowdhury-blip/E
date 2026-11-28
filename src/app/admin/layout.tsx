@@ -80,8 +80,10 @@ export default async function AdminLayout({
             label: item.label,
             exact: item.exact,
             icon: <item.icon className="size-3.5" />,
-          }))}
+          })        )}
         />
+        {/* ফোনে নেভ ফিক্সড থাকায় কনটেন্ট যেন তার নিচে শুরু হয় */}
+        <div aria-hidden className="h-16 md:hidden" />
         {children}
       </div>
     </div>

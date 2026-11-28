@@ -22,23 +22,25 @@ export function AdminNav({ items }: { items: AdminNavItem[] }) {
   return (
     <nav
       aria-label="অ্যাডমিন মেনু"
-      className="sticky top-14 z-30 -mx-4 mb-4 flex gap-2 overflow-x-auto border-b bg-background/95 px-4 py-2 backdrop-blur md:hidden"
+      className="fixed inset-x-0 top-14 z-40 border-b bg-background/95 backdrop-blur md:hidden"
     >
-      {items.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={cn(
-            "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-            isActive(item)
-              ? "border-primary bg-primary text-white"
-              : "bg-card text-muted-foreground hover:bg-muted"
-          )}
-        >
-          {item.icon}
-          {item.label}
-        </Link>
-      ))}
+      <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2">
+        {items.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+              isActive(item)
+                ? "border-primary bg-primary text-white"
+                : "bg-card text-muted-foreground hover:bg-muted"
+            )}
+          >
+            {item.icon}
+            {item.label}
+          </Link>
+        ))}
+      </div>
     </nav>
   );
 }
