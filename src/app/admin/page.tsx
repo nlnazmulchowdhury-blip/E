@@ -1,7 +1,6 @@
 import { Users, Store, Package, ShoppingBag, Clock, Wallet } from "lucide-react";
 import { getAdminStats } from "@/lib/data";
 import { formatBDT } from "@/lib/format";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -22,19 +21,17 @@ export default async function AdminDashboard() {
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold">ড্যাশবোর্ড</h1>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* ফোনে এক কলাম, ট্যাবে দুই, ডেস্কটপে তিন — সাধারণ প্যাডিং দিয়ে আঁকা,
+          তাই পুরোনো মোবাইল ব্রাউজারেও কার্ডগুলো সমানভাবে সাজে */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {cards.map((c) => (
-          <Card key={c.label}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {c.label}
-              </CardTitle>
-              <c.icon className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{c.value}</p>
-            </CardContent>
-          </Card>
+          <div key={c.label} className="min-w-0 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+            <div className="flex items-start justify-between gap-2">
+              <p className="min-w-0 text-sm font-medium text-muted-foreground">{c.label}</p>
+              <c.icon className="size-4 shrink-0 text-muted-foreground" />
+            </div>
+            <p className="mt-2 truncate text-2xl font-bold">{c.value}</p>
+          </div>
         ))}
       </div>
     </div>
