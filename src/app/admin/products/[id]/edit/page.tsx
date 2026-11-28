@@ -4,6 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import { requireAdminOrStaff } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { ProductForm } from "@/components/admin/product-form";
+import DeleteProductButton from "@/components/shared/delete-product-button";
+import { deleteProduct } from "@/lib/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -62,6 +64,13 @@ export default async function AdminEditProductPage({
           status: product.status,
         }}
       />
+
+      <div className="mt-8 border-t pt-4">
+        <DeleteProductButton
+          action={deleteProduct.bind(null, product.id)}
+          redirectTo="/admin/products"
+        />
+      </div>
     </div>
   );
 }

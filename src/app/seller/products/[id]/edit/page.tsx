@@ -5,6 +5,8 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { SellerProductForm } from "@/components/seller/seller-product-form";
+import DeleteProductButton from "@/components/shared/delete-product-button";
+import { deleteSellerProduct } from "@/lib/actions/seller";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -66,6 +68,13 @@ export default async function SellerEditProductPage({
           categoryId: product.categoryId,
         }}
       />
+
+      <div className="mt-8 border-t pt-4">
+        <DeleteProductButton
+          action={deleteSellerProduct.bind(null, product.id)}
+          redirectTo="/seller/products"
+        />
+      </div>
     </div>
   );
 }

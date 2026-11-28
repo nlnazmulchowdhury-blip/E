@@ -50,7 +50,8 @@ export function ProductGallery({
       )}
 
       <div className="relative min-w-0 flex-1 overflow-hidden rounded-2xl bg-white">
-        <div className="relative mx-auto w-full max-w-[273px] rounded-2xl border bg-white sm:max-w-[340px] md:max-w-[420px] lg:max-w-none">
+        {/* overflow-hidden — কনটেইনার লম্বা হলেও ছবির চার কোনা একই রকম গোল থাকে */}
+        <div className="relative mx-auto w-full max-w-[273px] overflow-hidden rounded-2xl border bg-white sm:max-w-[340px] md:max-w-[420px] lg:max-w-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={current?.url ?? "/placeholder.svg"}

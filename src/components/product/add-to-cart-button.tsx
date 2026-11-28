@@ -19,6 +19,7 @@ export function AddToCartButton({
   toastMessage = "কার্টে যোগ হয়েছে",
   buyNowLabel = "এখনই কিনুন",
   addedLabel = "যোগ হয়েছে",
+  alreadyInCartMessage = "এই প্রোডাক্টটি আগে থেকেই কার্টে আছে",
   variant = "default",
 }: {
   productId: string;
@@ -31,6 +32,7 @@ export function AddToCartButton({
   toastMessage?: string;
   buyNowLabel?: string;
   addedLabel?: string;
+  alreadyInCartMessage?: string;
   variant?: "default" | "outline" | "secondary";
 }) {
   const router = useRouter();
@@ -40,9 +42,14 @@ export function AddToCartButton({
   function handleAdd() {
     startTransition(async () => {
       try {
-        await addToCart(productId, quantity);
+        const result = await addToCart(productId, quantity);
         if (buyNow) {
           router.push("/checkout");
+          return;
+        }
+        // আগে থেকেই কার্টে থাকলে আরেকবার যোগ হয়নি — শুধু জানিয়ে দিই
+        if (result?.alreadyInCart) {
+          toast.info(alreadyInCartMessage);
           return;
         }
         setAdded(true);

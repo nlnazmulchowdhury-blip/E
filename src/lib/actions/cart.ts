@@ -23,7 +23,15 @@ async function getStock(productId: string, variantId: string | null = null) {
   return stockOf(product.inventory, variantId);
 }
 
-export async function addToCart(productId: string, quantity = 1, variantId: string | null = null) {
+export type AddToCartResult = { added: boolean; alreadyInCart: boolean };
+
+// একই প্রোডাক্ট আগে থেকে কার্টে থাকলে আরেকবার যোগ হয় না — শুধু জানিয়ে দিই।
+// পরিমাণ বদলাতে চাইলে কার্টের +/- বাটন ব্যবহার করতে হয়।
+export async function addToCart(
+  productId: string,
+  quantity = 1,
+  variantId: string | null = null
+): Promise<AddToCartResult> {
   const userId = await requireUser();
 
   const product = await prisma.product.findUnique({
@@ -43,19 +51,16 @@ export async function addToCart(productId: string, quantity = 1, variantId: stri
   });
 
   if (existing) {
-    const newQty = Math.min(existing.quantity + quantity, stock);
-    await prisma.cartItem.update({
-      where: { id: existing.id },
-      data: { quantity: newQty },
-    });
-  } else {
-    await prisma.cartItem.create({
-      data: { userId, productId, variantId, quantity: Math.min(quantity, stock) },
-    });
+    return { added: false, alreadyInCart: true };
   }
+
+  await prisma.cartItem.create({
+    data: { userId, productId, variantId, quantity: Math.min(quantity, stock) },
+  });
 
   revalidatePath("/cart");
   revalidatePath("/", "layout");
+  return { added: true, alreadyInCart: false };
 }
 
 export async function updateCartQuantity(

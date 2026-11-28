@@ -187,12 +187,10 @@ export async function getCart(userId: string) {
   });
 }
 
+// ব্যাজে আলাদা প্রোডাক্টের সংখ্যা দেখাই — কার্ট ড্রয়ারে যতগুলো লাইন আছে ঠিক ততটা
+// (দ্রয়ারে Organic Serum ×২ + Headphone ×৩ = ২টি প্রোডাক্ট, তাই ব্যাজও ২)
 export async function getCartCount(userId: string) {
-  const items = await prisma.cartItem.findMany({
-    where: { userId },
-    select: { quantity: true },
-  });
-  return items.reduce((sum, i) => sum + i.quantity, 0);
+  return prisma.cartItem.count({ where: { userId } });
 }
 
 export async function getWishlist(userId: string) {

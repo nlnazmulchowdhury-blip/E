@@ -94,8 +94,9 @@ export async function Header() {
     getCategories(),
   ]);
   const cartItems = toCartDrawerItems(cartItemRows);
-  // আলাদা কাউন্ট কুয়েরি না করে কার্ট আইটেন থেকেই হিসাব
-  const cartCount = cartItemRows.reduce((sum, item) => sum + item.quantity, 0);
+  // আলাদা কাউন্ট কুয়েরি না করে কার্ট আইটেন থেকেই হিসাব —
+  // ব্যাজে লাইন সংখ্যা (প্রোডাক্ট), মোট পিস নয়
+  const cartCount = cartItemRows.length;
   const t = await getTranslations("Header");
 
   return (
@@ -107,7 +108,7 @@ export async function Header() {
             alt="TemoBay"
             width={608}
             height={128}
-            className="h-9 w-auto sm:h-10"
+            className="h-7 w-auto sm:h-9 md:h-10"
           />
         </Link>
 
@@ -129,9 +130,10 @@ export async function Header() {
           </div>
         </form>
 
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex shrink-0 items-center gap-1">
           <LocaleSwitcher />
-          <Button asChild variant="ghost" size="sm" className="gap-2">
+          {/* ফোনে জায়গা কম — উইশলিস্ট/নোটিফিকেশন অ্যাকাউন্ট মেনুতেই আছে */}
+          <Button asChild variant="ghost" size="sm" className="hidden gap-2 sm:inline-flex">
             <Link href="/wishlist">
               <Heart className="size-4" />
               <span className="hidden lg:inline">{t("wishlist")}</span>
@@ -139,7 +141,7 @@ export async function Header() {
           </Button>
           <CartTrigger count={cartCount} label={t("cart")} />
           {session?.user?.id && (
-            <Button asChild variant="ghost" size="sm" className="relative gap-2">
+            <Button asChild variant="ghost" size="sm" className="relative hidden gap-2 sm:inline-flex">
               <Link href="/account/notifications" aria-label={t("notifications")}>
                 <Bell className="size-4" />
                 <span className="hidden lg:inline">{t("notifications")}</span>
