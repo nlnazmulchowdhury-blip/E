@@ -3,6 +3,7 @@ import { LayoutDashboard, FolderTree, Package, ShoppingBag, Users, Store, Bankno
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/permissions";
+import { AdminNav } from "@/components/admin/admin-nav";
 import { type StaffPermission } from "@/lib/staff-permissions";
 
 type NavItem = {
@@ -71,7 +72,18 @@ export default async function AdminLayout({
           </Link>
         </nav>
       </aside>
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="min-w-0 flex-1">
+        {/* ফোন-ট্যাবে সাইডবার নেই, তাই উপরে স্ক্রলযোগ্য সেকশন নেভ */}
+        <AdminNav
+          items={navItems.map((item) => ({
+            href: item.href,
+            label: item.label,
+            exact: item.exact,
+            icon: <item.icon className="size-3.5" />,
+          }))}
+        />
+        {children}
+      </div>
     </div>
   );
 }
