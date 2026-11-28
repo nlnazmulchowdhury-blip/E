@@ -21,16 +21,18 @@ export default async function AdminDashboard() {
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold">ড্যাশবোর্ড</h1>
-      {/* ফোনে এক কলাম, ট্যাবে দুই, ডেস্কটপে তিন — সাধারণ প্যাডিং দিয়ে আঁকা,
+      {/* ফোনেও দুই কলাম, ডেস্কটপে তিন — সাধারণ প্যাডিং দিয়ে আঁকা,
           তাই পুরোনো মোবাইল ব্রাউজারেও কার্ডগুলো সমানভাবে সাজে */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-3">
         {cards.map((c) => (
-          <div key={c.label} className="min-w-0 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+          <div key={c.label} className="min-w-0 rounded-xl bg-card p-3 ring-1 ring-foreground/10 sm:p-4">
             <div className="flex items-start justify-between gap-2">
-              <p className="min-w-0 text-sm font-medium text-muted-foreground">{c.label}</p>
+              <p className="min-w-0 text-xs leading-snug font-medium text-muted-foreground sm:text-sm">
+                {c.label}
+              </p>
               <c.icon className="size-4 shrink-0 text-muted-foreground" />
             </div>
-            <p className="mt-2 truncate text-2xl font-bold">{c.value}</p>
+            <p className="mt-1.5 truncate text-xl font-bold sm:mt-2 sm:text-2xl">{c.value}</p>
           </div>
         ))}
       </div>
